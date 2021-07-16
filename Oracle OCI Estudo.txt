@@ -1,0 +1,142 @@
+ESTUDO OCI - Oracle Cloud Infratructure
+
+IAM - Identity and access management service - usa conceitos de identidade tradicional com grupos, policies e principals. 
+IAM é toda a console que voce se utiliza para configurar sua Cloud atendendo sua necessidade.
+
+voce pode:
+	controlar quem pode acessar seu OCI
+	quais servicos e recursos estao disponiveis
+	como voce pode usr os servicos e recursos
+	
+
+RESOURCE - Compute Instance, Block Storage Volumes, Virtual Cloud Networks
+
+OCI IAM - introduz uma nova feature chamada COMPARTMENTS
+
+Existem dois tipos de principals: Users/Groups e Instance Principals
+
+No Users/Groups: 
+	quando  cliente conecta em uma conta OCI o primeiro usuario do IAM é o Administrador
+	este primeiro usuario configura os outros 
+	o usuario só passa a funcionar com suas permissoes depois que forem inseridos 
+	em um grupos
+	o grupo tem no minimo uma politica com permissão para alocar um recurso ou compartimento
+	
+	** existe o dymanic groups que podem fazer um trabalho especifico e depois pode ser excluido, exemplo terraform group que pode ser usado para instalar um ambiente.
+	
+
+Instance Principals
+	Permitem que as instancias façam chamadas na aplicação sem a necessidade de configurar
+	credenciais de usuarios em um arquivo de configuracao.
+	
+IAM Service autentica um Principals por:
+
+	Username, password no portal onde no primeiro acesso voce muda a senha
+	Chave de acesso: API Key, é requereida quando usamos uma aplicação em conjunto com o SDK
+	A chave do RSA em formato PEM de 2048 bits;
+	Voce pode copiar a colar a chave publica
+
+TENANTS AND COMPARTMENTS:
+
+Tenants: 	equivalem ha uma conta
+			contem todos os recursos do OCI disponiveis
+			a partir de um compartimento root voce pode criar outros compartimentos
+
+COMPARTMENTS:	É uma coleção de recursos (rede cloud, compute instances) que podem ser acessados somente pelo trupo que tem as permissoes concedidas pelo administrador.
+				seria como um conteiner lógico usado para isolar e orgtanizar os recursos da nuvem;
+				cada recurso está em um compartimento e os recursos existem para o ambiente todo e podem ser compartilhados por outros usuarios
+				compartimentos nao podem ser movidos ou deletados, somente renomeados;
+				compartimentos sao somente um nivel acima mas no futuro serao hierqcrhicos de acordo com as permissoes e serão passados para os filhos na estrutura
+				
+				
+				USO DE COMPARTMENTS:
+				
+				
+				Grupos Administradores: Permite que administradores rgerenciem os recursos no Tenancy
+				
+					Grupos Network Admins(networks):
+					    permitem trupo de administradores de rede gerencia uma rede virtual em um compartimento
+					    Exemplo, uma pessoa cria uma rede em um compartment de rede mas nao pode terminar, reiniciar ou ativar uma nova instancia em um compartimento de projeto
+					
+					Grupos A-Admins (A-Project) : permite o a-admins usar a rede virtual no compartimento de rede
+					    permite o grupo a-admins gerenciar todos os recrusos em um compartimento de projeto
+					    Exemplo: Voceinicia a instancia em um projeto utilizando VCN no compartimento de rede;
+					    Mas voce nao pode ativar a instancia dentro deste compartimento de rede.
+						
+IAM - Os recursos são globais, voce pode ter acessá-los em qualquer região; 
+
+Resource em relação a locations são descritos da seguinte forma:
+
+	IAM é global
+	Compute/block Volume: imagens e backups são regionais e instancias e block volumens são de acordo com o dominio disponível (as instancias podem ser atachadas em qualquer AD)
+	Database: São por disponibilidade de dominio
+	Network: VCN-Virtual Cloud Network, lista de seguranca, tabela de routeamento, Gateway e equipamentos no cliente são por região. Somente subnet é por disponibilidade de dominio.
+
+	Serviço de IP reservado é por região, IP público é por dominio disponivel
+	Load (load balancer) é por região (nada mais justo porque a latencia seria grande)
+	Objetc Storage (buckets) por região, mas pode ser acessado de qualquer local desde que seja especificada a URL da região.
+
+TAGGING - são marcações que simplificam o nome dos recursos adicionados facilitando a compreensão do objetivo dos mesmos;
+
+	
+FEDERAÇÃO: Consiste de um grupo de provedores de serviços possuirem acessos uns aos outros de forma segura permitindo por exemplo que 
+um determinado cliente tenha uma aplicação no Azzure e que necessariamente precisa alimentar a base de dados do Oracle OCI. Dessa forma 
+a rede fica protegida.
+	
+
+CONECTIVIDADE - Opções
+
+Public Internet:
+	IPs reservados
+	Ephemeral IPs  (ip por somente 1 conexao)
+	Internet Data out Princing
+	
+VPN:
+
+	IPsec autenticada e encriptada
+	Duas opções de domínio:
+		Serviço de VPN gratuita gerenciada pelo OCI (key)
+		Software VPN executando no OCI
+		
+Fast Connect:
+
+Conexão privada
+	Separada pela internet
+	Rede Consistente
+	Portas de conexão com velocidade de 1 a 10 Gbps
+	SLA
+	
+Exemplo Classico de VCN-Virtual Cloud Network:
+	Oracle Cloud Data Center Region
+	
+	VCN 10.0.0/16 (65543 hosts)
+		Domain A: Subnet 10.0.1.0/24 (254 hosts)
+		Domain B: Subnet 10.0.2.0/24 (254 hosts)
+	
+	
+Diferença entre Fast Connect e IPSec
+
+						IPSec 									Fast Connect
+Use Case				dev/test/pequena producao pouca carga	Missão crítica, cargas, aplicacoes, backup e DR
+Support					Todos os serviços OCI com VCN 			Todos os serviços OCI com VCN 
+Bandwith				Menor que 250 Mbps						A partir de 1 Gb até 10 Gb por porta. Banda grande.
+Protocols				IPSec									MPLS, VPLS
+Rota					Estatica								Não
+Conexão/Resiliencia		Ativo-ativo								Ativo-ativo
+Encriptação				Sim, default							Não, tem que criar, contratar
+Cobrança				Gratuita								Bilheta por horas de uso na porta, não realiza carga de transrerencia entre AD's
+SLA						Sem SLA									SLA com 99% de disponibilidade
+
+
+COMPUTE:
+
+Bare Metal - Maquina do cliente
+VM - Um Hypervisor virtualiza os servidores a partir de um hardware unico
+
+SHAPE - Consiste dos recursos de processador e memória do servidor 
+
+Imagens que a Oracle disponibiliza: Oracle Linux, CentOS, Ubuntu, Windows 2008/12/16
+
+					
+				
+
